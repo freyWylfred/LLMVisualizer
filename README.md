@@ -3,9 +3,9 @@
 **ニューラルネットワーク アーキテクチャ ビジュアライザー** — Python ソースファイル (.py)、HuggingFace config.json、GGUF ファイルからモデル構造を読み取り、左→右のフローで可視化する Windows デスクトップアプリケーションです。
 
 <p align="center">
-  <img src="docs/screenshot_placeholder.png" alt="LLM Visualizer Screenshot" width="800">
+  <img src="docs/screenshot.png" alt="LLM Visualizer - Keras CNN モデルの可視化例" width="800">
   <br>
-  <em>※ アプリ実行後のスクリーンショットに差し替えてください</em>
+  <em>Keras CNN モデル (MNISTDoubleLayerCNNClassification.py) の可視化例</em>
 </p>
 
 ---
