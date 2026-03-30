@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="LLMVisualizer.Tests/LLMVisualizer.Tests.csproj" />
+  <Project Path="LLMVisualizer/LLMVisualizer.csproj" />
+</Solution>
