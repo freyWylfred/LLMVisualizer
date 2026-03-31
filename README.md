@@ -1,88 +1,90 @@
 # LLM Visualizer
 
-**ニューラルネットワーク アーキテクチャ ビジュアライザー** — Python ソースファイル (.py)、HuggingFace config.json、GGUF ファイルからモデル構造を読み取り、左→右のフローで可視化する Windows デスクトップアプリケーションです。
+**Neural Network Architecture Visualizer** — A Windows desktop application that reads model structures from Python source files (.py), HuggingFace config.json, and GGUF files, and visualizes them in a left-to-right flow diagram.
+
+> 🌐 **English** | [日本語](docs/README_ja.md)
 
 <p align="center">
-  <img src="docs/screenshot.png" alt="LLM Visualizer - Keras CNN モデルの可視化例" width="800">
+  <img src="docs/screenshot.png" alt="LLM Visualizer - Keras CNN model visualization" width="800">
   <br>
-  <em>Keras CNN モデル (MNISTDoubleLayerCNNClassification.py) の可視化例</em>
+  <em>Visualization of a Keras CNN model (MNISTDoubleLayerCNNClassification.py)</em>
 </p>
 
 ---
 
-## ✨ 主な機能
+## ✨ Features
 
-| 機能 | 説明 |
-|------|------|
-| **マルチフレームワーク対応** | PyTorch, TensorFlow/Keras, JAX/Flax, JAX/Haiku, PaddlePaddle, MindSpore |
-| **複数ファイル形式** | Python (.py), JSON (config.json), GGUF (.gguf) |
-| **自動フレームワーク検出** | import 文から使用フレームワークを自動判定 |
-| **レイヤー可視化** | 左→右フローのアーキテクチャ図を GDI+ で描画 |
-| **コンテナ展開** | ModuleList / Sequential / ModuleDict の子レイヤーを展開表示 |
-| **サブクラス展開** | ユーザー定義サブモジュールクラスを再帰的に展開 |
-| **メタデータ抽出** | VocabSize, HiddenSize, NumAttentionHeads 等を自動推定 |
-| **ズーム & パン** | マウスホイールでズーム、ドラッグでパン |
-| **PNG エクスポート** | アーキテクチャ図を高解像度 PNG として保存 |
-| **ドラッグ＆ドロップ** | ファイルをウィンドウにドロップして即座に読み込み |
+| Feature | Description |
+|---------|-------------|
+| **Multi-Framework Support** | PyTorch, TensorFlow/Keras, JAX/Flax, JAX/Haiku, PaddlePaddle, MindSpore |
+| **Multiple File Formats** | Python (.py), JSON (config.json), GGUF (.gguf) |
+| **Auto Framework Detection** | Automatically identifies the framework from import statements |
+| **Layer Visualization** | Left-to-right architecture diagram rendered with GDI+ |
+| **Container Expansion** | Expands child layers of ModuleList / Sequential / ModuleDict |
+| **Sub-class Expansion** | Recursively expands user-defined sub-module classes |
+| **Metadata Extraction** | Auto-estimates VocabSize, HiddenSize, NumAttentionHeads, etc. |
+| **Zoom & Pan** | Mouse wheel to zoom, drag to pan |
+| **PNG Export** | Save architecture diagrams as high-resolution PNG |
+| **Drag & Drop** | Drop files onto the window for instant loading |
 
 ---
 
-## 🏗️ 対応フレームワーク詳細
+## 🏗️ Supported Frameworks
 
 ### PyTorch
-- `nn.Module` サブクラスの `__init__()` / `forward()` を解析
-- `nn.ModuleList`, `nn.ModuleDict`, `nn.Sequential` (+ `OrderedDict`) 対応
-- `nn.TransformerEncoder` / `nn.TransformerDecoder` の内部構造展開
-- `F.relu`, `torch.relu` 等の関数型アクティベーション検出
+- Parses `nn.Module` subclass `__init__()` / `forward()` methods
+- Supports `nn.ModuleList`, `nn.ModuleDict`, `nn.Sequential` (+ `OrderedDict`)
+- Expands internal structure of `nn.TransformerEncoder` / `nn.TransformerDecoder`
+- Detects functional activations such as `F.relu`, `torch.relu`
 
 ### TensorFlow / Keras
-- Sequential API (`model.add()` / インライン定義)
+- Sequential API (`model.add()` / inline definition)
 - Functional API (`layers.Dense(...)(x)`)
-- `activation='relu'` 等のアクティベーション引数抽出
+- Extracts activation arguments like `activation='relu'`
 
 ### JAX / Flax
-- `setup()` メソッドによるレイヤー定義
-- `@nn.compact` デコレータによるインライン定義 (`nn.Dense(features=128)(x)`)
-- Flax 固有型の正規化 (`Embed` → `Embedding`, `SelfAttention` → `MultiheadAttention`)
-- キーワード引数による次元抽出 (`features=`, `num_heads=`, `num_embeddings=`)
+- Layer definitions via `setup()` method
+- Inline definitions with `@nn.compact` decorator (`nn.Dense(features=128)(x)`)
+- Normalizes Flax-specific types (`Embed` → `Embedding`, `SelfAttention` → `MultiheadAttention`)
+- Keyword-based dimension extraction (`features=`, `num_heads=`, `num_embeddings=`)
 
 ### JAX / Haiku
-- `hk.Module` サブクラスの `__init__()` / `__call__()` を解析
-- `hk.Linear`, `hk.Embed`, `hk.LayerNorm` 等のレイヤー認識
+- Parses `hk.Module` subclass `__init__()` / `__call__()` methods
+- Recognizes layers such as `hk.Linear`, `hk.Embed`, `hk.LayerNorm`
 
 ### PaddlePaddle
-- `nn.Layer` サブクラスの `__init__()` / `forward()` を解析
-- `nn.LayerList` コンテナ対応
-- `paddle.nn.` プレフィックスのレイヤー認識
+- Parses `nn.Layer` subclass `__init__()` / `forward()` methods
+- Supports `nn.LayerList` containers
+- Recognizes layers with `paddle.nn.` prefix
 
 ### MindSpore
-- `nn.Cell` サブクラスの `__init__()` / `construct()` を解析
-- `nn.CellList` コンテナ対応
-- `mindspore.nn.` / `ms.nn.` プレフィックスのレイヤー認識
+- Parses `nn.Cell` subclass `__init__()` / `construct()` methods
+- Supports `nn.CellList` containers
+- Recognizes layers with `mindspore.nn.` / `ms.nn.` prefix
 
 ---
 
-## 🚀 動作要件
+## 🚀 Requirements
 
-| 要件 | バージョン |
-|------|-----------|
+| Requirement | Version |
+|-------------|---------|
 | **OS** | Windows 10 / 11 (x64) |
-| **.NET** | .NET 10 Preview 以上 |
+| **.NET** | .NET 10 Preview or later |
 
 > [!NOTE]
-> .NET 10 ランタイムがインストールされていない場合は [公式ダウンロードページ](https://dotnet.microsoft.com/download/dotnet/10.0) から入手してください。
+> If the .NET 10 runtime is not installed, download it from the [official download page](https://dotnet.microsoft.com/download/dotnet/10.0).
 
 ---
 
-## 📦 インストール & 実行
+## 📦 Installation & Running
 
-### リリースバイナリを使用する場合
+### Using Release Binaries
 
-1. [Releases](https://github.com/freyWylfred/LLMVisualizer/releases) ページから最新の ZIP をダウンロード
-2. 任意のフォルダに展開
-3. `LLMVisualizer.exe` を実行
+1. Download the latest ZIP from the [Releases](https://github.com/freyWylfred/LLMVisualizer/releases) page
+2. Extract to any folder
+3. Run `LLMVisualizer.exe`
 
-### ソースからビルドする場合
+### Building from Source
 
 ```bash
 git clone https://github.com/freyWylfred/LLMVisualizer.git
@@ -93,42 +95,42 @@ dotnet run --project LLMVisualizer
 
 ---
 
-## 🧪 テスト
+## 🧪 Testing
 
-50 件のユニットテスト（MSTest）で主要な機能を検証しています。
+50 unit tests (MSTest) verify the core functionality.
 
 ```bash
 dotnet test
 ```
 
-### テストカバレッジ
+### Test Coverage
 
-| カテゴリ | テスト数 | 内容 |
-|---------|---------|------|
+| Category | Tests | Coverage |
+|----------|-------|----------|
 | PyTorch | 14 | GPT, Transformer, CNN, Sequential, LSTM |
 | TensorFlow | 2 | Sequential, Activation |
 | JAX/Flax | 8 | setup(), @nn.compact, Embed, Dense, SelfAttention |
 | JAX/Haiku | 5 | Parse, Embed, Linear, Framework, CallOrder |
 | PaddlePaddle | 5 | Parse, Embed, Framework, Forward, SubClass |
 | MindSpore | 6 | Parse, Embed, Framework, Construct, SubClass, Metadata |
-| エッジケース | 4 | 空ファイル, モジュールなし, 不正括弧, ファイル不在 |
-| JSON/GGUF | 4 | 不在ファイル, 不正JSON, 不正マジック, 切詰ファイル |
-| ユーティリティ | 2 | FormatParameters |
+| Edge Cases | 4 | Empty file, No module, Malformed parens, Missing file |
+| JSON/GGUF | 4 | Missing file, Invalid JSON, Invalid magic, Truncated |
+| Utilities | 2 | FormatParameters |
 
 ---
 
-## 📁 プロジェクト構成
+## 📁 Project Structure
 
 ```
 LLMVisualizer/
-├── LLMVisualizer/                # メインアプリケーション
-│   ├── Program.cs                # エントリーポイント
-│   ├── Form1.cs                  # メインフォーム (ファイル読込, D&D, UI)
-│   ├── Form1.Designer.cs         # フォームデザイナー
-│   ├── ArchitecturePanel.cs      # GDI+ カスタム描画パネル
-│   ├── LLMModel2.cs              # モデル/パーサー (Python, JSON, GGUF)
-│   ├── LLMVisualizer.csproj      # プロジェクトファイル
-│   └── TestData/                 # テスト用 Python サンプル
+├── LLMVisualizer/                # Main application
+│   ├── Program.cs                # Entry point
+│   ├── Form1.cs                  # Main form (file loading, D&D, UI)
+│   ├── Form1.Designer.cs         # Form designer
+│   ├── ArchitecturePanel.cs      # GDI+ custom drawing panel
+│   ├── LLMModel2.cs              # Model/Parser (Python, JSON, GGUF)
+│   ├── LLMVisualizer.csproj      # Project file
+│   └── TestData/                 # Test Python samples
 │       ├── test_pytorch_basic.py
 │       ├── test_pytorch_transformer.py
 │       ├── test_pytorch_cnn.py
@@ -143,66 +145,69 @@ LLMVisualizer/
 │       ├── test_empty.py
 │       ├── test_no_module.py
 │       └── test_malformed.py
-├── LLMVisualizer.Tests/          # ユニットテスト (MSTest)
-│   ├── ParserTests.cs            # 50 テストケース
+├── LLMVisualizer.Tests/          # Unit tests (MSTest)
+│   ├── ParserTests.cs            # 50 test cases
 │   ├── LLMVisualizer.Tests.csproj
-│   └── TestData/                 # テストデータコピー
-├── LLMVisualizer.slnx            # ソリューションファイル
+│   └── TestData/                 # Test data copy
+├── docs/                         # Documentation
+│   ├── README_ja.md              # Japanese README
+│   └── screenshot.png            # Application screenshot
+├── LLMVisualizer.slnx            # Solution file
 ├── LICENSE                       # MIT License
-└── README.md
+└── README.md                     # This file (English)
 ```
 
 ---
 
-## 🎨 レイヤーの色分け
+## 🎨 Layer Color Coding
 
-| 色 | レイヤータイプ |
-|----|---------------|
-| 🔵 青 | Embedding, Embed, Input |
-| 🟣 紫 | LayerNorm, RMSNorm, BatchNorm |
-| 🟢 緑 | MultiheadAttention, Transformer, LSTM, GRU |
-| 🟠 オレンジ | Linear, Dense, DenseGeneral |
-| 🔴 赤 | Output / Head レイヤー |
-| 🟡 黄 | Conv, Pool |
-| 灰緑 | ReLU, GELU, Dropout 等のアクティベーション |
-| ⬜ 灰 | その他 |
+| Color | Layer Types |
+|-------|-------------|
+| 🔵 Blue | Embedding, Embed, Input |
+| 🟣 Purple | LayerNorm, RMSNorm, BatchNorm |
+| 🟢 Green | MultiheadAttention, Transformer, LSTM, GRU |
+| 🟠 Orange | Linear, Dense, DenseGeneral |
+| 🔴 Red | Output / Head layers |
+| 🟡 Yellow | Conv, Pool |
+| Gray-Green | ReLU, GELU, Dropout, and other activations |
+| ⬜ Gray | Others |
 
 ---
 
-## 📝 使い方
+## 📝 Usage
 
-1. **ファイルを開く**: メニュー「ファイル → 開く」または、ウィンドウにファイルをドラッグ＆ドロップ
-2. **対応形式**:
-   - `.py` — Python ソースファイル（PyTorch, TensorFlow, Flax, Haiku, Paddle, MindSpore）
+1. **Open a file**: Menu "File → Open" or drag & drop a file onto the window
+2. **Supported formats**:
+   - `.py` — Python source files (PyTorch, TensorFlow, Flax, Haiku, Paddle, MindSpore)
    - `.json` — HuggingFace config.json
-   - `.gguf` — GGUF モデルファイル
-3. **操作**:
-   - **ズーム**: マウスホイール or メニュー「表示 → ズームイン / ズームアウト」
-   - **パン**: マウスドラッグ
-   - **リセット**: メニュー「表示 → ズームリセット」
-4. **エクスポート**: メニュー「ファイル → PNG エクスポート」で高解像度画像を保存
+   - `.gguf` — GGUF model files
+3. **Controls**:
+   - **Zoom**: Mouse wheel or menu "View → Zoom In / Zoom Out"
+   - **Pan**: Mouse drag
+   - **Reset**: Menu "View → Reset Zoom"
+4. **Export**: Menu "File → Export PNG" to save a high-resolution image
 
 ---
 
-## 🤝 コントリビューション
+## 🤝 Contributing
 
-Issue や Pull Request は歓迎します。
+Issues and Pull Requests are welcome!
 
-1. このリポジトリをフォーク
-2. 機能ブランチを作成 (`git checkout -b feature/amazing-feature`)
-3. 変更をコミット (`git commit -m 'Add amazing feature'`)
-4. ブランチにプッシュ (`git push origin feature/amazing-feature`)
-5. Pull Request を作成
-
----
-
-## 📜 ライセンス
-
-このプロジェクトは [MIT License](LICENSE) の下で公開されています。
+1. Fork this repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ---
 
-## 🙏 謝辞
+## 📜 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+## 🙏 Acknowledgments
 
 - [.NET 10](https://dotnet.microsoft.com/) — Microsoft
-- [Windows Forms](https://learn.microsoft.com/dotnet/desktop/winforms/) — GDI+ ベースの UI フレームワーク
+- [Windows Forms](https://learn.microsoft.com/dotnet/desktop/winforms/) — GDI+ based UI framework
